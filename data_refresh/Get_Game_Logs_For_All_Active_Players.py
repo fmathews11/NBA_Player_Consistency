@@ -19,7 +19,7 @@ def main():
 
     # Instantiate final output dataframe
     master_df = pd.DataFrame()
-
+    logger.info("Beginning data pull")
     for idx, player in enumerate(active_players):
         logger.debug(f"Getting data for {player['first_name']} {player['last_name']}")
         temp_df = playergamelog.PlayerGameLog(player_id=player['id'], season=SEASON).get_data_frames()[0]
