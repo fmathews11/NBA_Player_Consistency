@@ -20,7 +20,7 @@ def main():
     # Instantiate final output dataframe
     master_df = pd.DataFrame()
 
-    for idx,player in enumerate(active_players):
+    for idx, player in enumerate(active_players):
         logger.debug(f"Getting data for {player['first_name']} {player['last_name']}")
         temp_df = playergamelog.PlayerGameLog(player_id=player['id'], season=SEASON).get_data_frames()[0]
         temp_df['First_Name'] = player['first_name']
@@ -30,14 +30,20 @@ def main():
         write_counter += 1
         if write_counter == 20:
             logger.info(f"Saving parquet file iteratively: number {idx} of {len(active_players)}")
-            master_df.to_parquet(f"../data/active_player_game_logs_{SEASON}.gzip", compression='gzip')
+            master_df.to_parquet(f"../data/active_player_game_logs_{SEASON}.gzip", compression='gzip', index=False)
             write_counter = 0
 
         # Sleep
         time.sleep(np.random.randint(2, 4))
 
+    logger.info("Reconfiguring column order")
+    column_names = master_df.columns.tolist()
+    column_names.insert(1, column_names.pop(column_names.index('First_Name')))
+    column_names.insert(2, column_names.pop(column_names.index('Last_Name')))
+    master_df = master_df.loc[:, column_names]
+
     logger.info("Saving final parquet file")
-    master_df.to_parquet(f"../data/active_player_game_logs_{SEASON}.gzip", compression='gzip')
+    master_df.to_parquet(f"../data/active_player_game_logs_{SEASON}.gzip", compression='gzip', index=False)
     logger.info("Finished")
     return
 
